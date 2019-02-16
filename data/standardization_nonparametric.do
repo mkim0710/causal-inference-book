@@ -1,3 +1,7 @@
+** The dataset nhefs.dta is from the following reference:  
+** Hernán MA, Robins JM (2019). Causal Inference. Boca Raton: Chapman & Hall/CRC, forthcoming. 
+** https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/
+
 clear
 webuse set "https://github.com/mkim0710/causal-inference-book/raw/master/data"
 webuse "nhefs.dta"
