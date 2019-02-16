@@ -1,6 +1,6 @@
 ** Programmed by Min-Hyung Kim
 ** Please find the most updated program at the following URL:
-** https://github.com/mkim0710/causal-inference-book/blob/master/data/standardization_nonparametric.do
+** https://github.com/mkim0710/causal-inference-book/blob/master/stata/standardization_nonparametric.do
 
 
 ** The dataset nhefs.dta is from the following reference:  
