@@ -6,11 +6,11 @@ drop if wt82_71 == .
 global varname4id seqn
 global varname4outcome wt82_71
 global varname4tx qsmk
-global varnames4confounder age_gt50
+global varname4confounder age_gt50
 preserve
-collapse (count) n = $varname4id (mean) E_outcome = $varname4outcome, by($varname4tx $varnames4confounder)
+collapse (count) n = $varname4id (mean) E_outcome = $varname4outcome, by($varname4tx $varname4confounder)
 egen total = sum(n)
-egen n_by_confounder = sum(n), by($varnames4confounder)
+egen n_by_confounder = sum(n), by($varname4confounder)
 egen E_outcome_by_tx = sum(E_outcome * n_by_confounder / total), by($varname4tx)
 egen tmp_min = min(E_outcome_by_tx)
 egen tmp_max = max(E_outcome_by_tx)
@@ -34,11 +34,11 @@ restore, preserve
 global varname4id seqn
 global varname4outcome wt82_71
 global varname4tx qsmk
-global varnames4confounder age_gt50 sex race exercise
+global varname4confounder age_gt50 sex race exercise
 preserve
-collapse (count) n = $varname4id (mean) E_outcome = $varname4outcome, by($varname4tx $varnames4confounder)
+collapse (count) n = $varname4id (mean) E_outcome = $varname4outcome, by($varname4tx $varname4confounder)
 egen total = sum(n)
-egen n_by_confounder = sum(n), by($varnames4confounder)
+egen n_by_confounder = sum(n), by($varname4confounder)
 egen E_outcome_by_tx = sum(E_outcome * n_by_confounder / total), by($varname4tx)
 egen tmp_min = min(E_outcome_by_tx)
 egen tmp_max = max(E_outcome_by_tx)
