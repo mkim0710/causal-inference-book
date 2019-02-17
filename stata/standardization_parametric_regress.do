@@ -1,6 +1,6 @@
 ** Programmed by Min-Hyung Kim
 ** Please find the most updated program at the following URL:
-** https://github.com/mkim0710/causal-inference-book/blob/master/stata/standardization_parametric.do
+** https://github.com/mkim0710/causal-inference-book/blob/master/stata/standardization_parametric_regress.do
 
 
 ** The dataset nhefs.dta is from the following reference:  
