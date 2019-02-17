@@ -17,7 +17,11 @@ global varname4id seqn
 global varname4outcome wt82_71
 global varname4tx qsmk
 global varname4confounder age_gt50
-regress $varname4outcome $varname4tx $varname4confounder
+global i_varname4confounder
+foreach varname of global varname4confounder {
+    global i_varname4confounder $i_varname4confounder i.`varname'
+}
+regress $varname4outcome $varname4tx $i_varname4confounder
 preserve
 collapse (count) n = $varname4id, by($varname4tx $varname4confounder)
 predict E_outcome, xb
@@ -46,7 +50,11 @@ global varname4id seqn
 global varname4outcome wt82_71
 global varname4tx qsmk
 global varname4confounder age_gt50 sex race exercise
-regress $varname4outcome $varname4tx $varname4confounder
+global i_varname4confounder
+foreach varname of global varname4confounder {
+    global i_varname4confounder $i_varname4confounder i.`varname'
+}
+regress $varname4outcome $varname4tx $i_varname4confounder
 preserve
 collapse (count) n = $varname4id, by($varname4tx $varname4confounder)
 predict E_outcome, xb
