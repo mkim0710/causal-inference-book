@@ -24,6 +24,7 @@ foreach varname of global varname4confounder {
 regress $varname4outcome $varname4tx $i_varname4confounder
 preserve
 collapse (count) n = $varname4id, by($varname4tx $varname4confounder)
+fillin $varname4tx $varname4confounder
 predict E_outcome, xb
 egen total = sum(n)
 egen n_by_confounder = sum(n), by($varname4confounder)
@@ -57,6 +58,7 @@ foreach varname of global varname4confounder {
 regress $varname4outcome $varname4tx $i_varname4confounder
 preserve
 collapse (count) n = $varname4id, by($varname4tx $varname4confounder)
+fillin $varname4tx $varname4confounder
 predict E_outcome, xb
 egen total = sum(n)
 egen n_by_confounder = sum(n), by($varname4confounder)
