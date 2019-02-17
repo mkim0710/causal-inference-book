@@ -19,6 +19,7 @@ global varname4tx qsmk
 global varname4confounder age_gt50
 preserve
 collapse (count) n = $varname4id (mean) E_outcome = $varname4outcome, by($varname4tx $varname4confounder)
+fillin $varname4tx $varname4confounder
 egen total = sum(n)
 egen n_by_confounder = sum(n), by($varname4confounder)
 egen E_outcome_by_tx = sum(E_outcome * n_by_confounder / total), by($varname4tx)
@@ -47,6 +48,7 @@ global varname4tx qsmk
 global varname4confounder age_gt50 sex race exercise
 preserve
 collapse (count) n = $varname4id (mean) E_outcome = $varname4outcome, by($varname4tx $varname4confounder)
+fillin $varname4tx $varname4confounder
 egen total = sum(n)
 egen n_by_confounder = sum(n), by($varname4confounder)
 egen E_outcome_by_tx = sum(E_outcome * n_by_confounder / total), by($varname4tx)
