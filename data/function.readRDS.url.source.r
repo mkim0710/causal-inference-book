@@ -142,8 +142,9 @@ nhefs.coxph_Exposure %>% {cbind( coef(.), confint(.) )} %>% exp %>% round(2) #--
 
 
 
+
 #@ -----
-#@ MH) fit of parametric hazards model ========
+#@ MH) nhefs.surv.glm_Exposure_k ========
 data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
   select(
     Dk_plus1, Exposure, k
@@ -196,6 +197,79 @@ nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>%
   select(k) %>% distinct %>% arrange(k) %>% 
   {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
   mutate(pNoEvent_k = 1 - predict(data.PersonTime.glm_Exposure_k, newdata = ., type = "response")) %>% 
+  group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
+  ungroup %>% mutate(Exposure = Exposure %>% as.factor) %>% 
+  ggplot(aes(x = k, y = pNoEvent_k.cumprod, color = Exposure, group = Exposure)) + 
+  geom_line()
+
+
+
+
+
+#@ -----
+#@ MH) nhefs.surv.glm_Exposure_k_Covariates ========
+data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+  select(
+    Dk_plus1, Exposure, k, age, sex
+  ) %>% mutate(Exposure = Exposure==1) %>% mutate_if(is.logical, as.numeric)
+nhefs.surv.glm_Exposure_k_Covariates = glm(formula = Dk_plus1 ~ Exposure * (k + I(k^2)) + . , data = data, family = binomial)
+nhefs.surv.glm_Exposure_k_Covariates %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+nhefs.surv.glm_Exposure_k_Covariates %>% summary #----
+# > nhefs.surv.glm_Exposure_k_Covariates %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+#                      2.5 % 97.5 %
+# (Intercept)     0.00  0.00   0.00
+# Exposure        0.91  0.41   1.98
+# k               1.02  1.01   1.04
+# I(k^2)          1.00  1.00   1.00
+# age             1.10  1.09   1.12
+# sex             0.59  0.47   0.74
+# Exposure:k      1.02  0.99   1.05
+# Exposure:I(k^2) 1.00  1.00   1.00
+
+
+#@ MH) creation of dataset with all time points under each treatment level =====
+data.PersonTime.glm_Exposure_k_Covariates = nhefs.surv.glm_Exposure_k_Covariates
+nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+  select(
+    Dk_plus1, Exposure, k, age, sex
+  ) %>% mutate(Exposure = Exposure==1) %>% mutate_if(is.logical, as.numeric) %>% 
+  group_by(k) %>% select(-Dk_plus1) %>% summarise_all(median) %>% 
+  {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
+  mutate(pNoEvent_k = 1 - predict(data.PersonTime.glm_Exposure_k_Covariates, newdata = ., type = "response")) %>% 
+  group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
+  as.tibble %>% select(k, Exposure, pNoEvent_k, pNoEvent_k.cumprod, everything())
+# > nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+# +   select(
+# +     Dk_plus1, Exposure, k, age, sex
+# +   ) %>% mutate(Exposure = Exposure==1) %>% mutate_if(is.logical, as.numeric) %>% 
+# +   group_by(k) %>% select(-Dk_plus1) %>% summarise_all(median) %>% 
+# +   {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
+# +   mutate(pNoEvent_k = 1 - predict(data.PersonTime.glm_Exposure_k_Covariates, newdata = ., type = "response")) %>% 
+# +   group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
+# +   as.tibble %>% select(k, Exposure, pNoEvent_k, pNoEvent_k.cumprod, everything())
+# # A tibble: 240 x 6
+#        k Exposure pNoEvent_k pNoEvent_k.cumprod   age   sex
+#    <dbl>    <dbl>      <dbl>              <dbl> <dbl> <dbl>
+#  1     0        0      1.000              1.000    44     1
+#  2     1        0      1.000              0.999    44     1
+#  3     2        0      1.000              0.999    44     1
+#  4     3        0      1.000              0.998    44     1
+#  5     4        0      1.000              0.998    44     1
+#  6     5        0      1.000              0.998    44     1
+#  7     6        0      1.000              0.997    44     1
+#  8     7        0      1.000              0.997    44     1
+#  9     8        0      1.000              0.996    44     1
+# 10     9        0      1.000              0.996    44     1
+# # ... with 230 more rows
+
+data.PersonTime.glm_Exposure_k_Covariates = nhefs.surv.glm_Exposure_k_Covariates
+nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+  select(
+    Dk_plus1, Exposure, k, age, sex
+  ) %>% mutate(Exposure = Exposure==1) %>% mutate_if(is.logical, as.numeric) %>% 
+  group_by(k) %>% select(-Dk_plus1) %>% summarise_all(median) %>% 
+  {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
+  mutate(pNoEvent_k = 1 - predict(data.PersonTime.glm_Exposure_k_Covariates, newdata = ., type = "response")) %>% 
   group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
   ungroup %>% mutate(Exposure = Exposure %>% as.factor) %>% 
   ggplot(aes(x = k, y = pNoEvent_k.cumprod, color = Exposure, group = Exposure)) + 
