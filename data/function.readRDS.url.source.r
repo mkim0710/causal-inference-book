@@ -54,10 +54,13 @@ nhefs %>%
     mutate(
         Period = paste0("(", (PeriodSeq-1)*Interval, ",", PeriodSeq*Interval, "]") %>% as.factor
         , time = PeriodSeq * Interval
-        , event = (death == 1) & (survtime <= PeriodSeq * Interval)
         , timesq = time*time
+        , event = (death == 1) & (survtime <= PeriodSeq * Interval)
         , k = PeriodSeq - 1  # defined as in hernanrobins_v2.17.22 $17.2 From hazards to risks
+        , ksq = k*k
         , Dk_plus1 = event  # defined as in hernanrobins_v2.17.22 $17.2 From hazards to risks 
+        , `Dk_plus1:k` = Dk_plus1 * k
+        , `Dk_plus1:ksq` = Dk_plus1 * ksq
     ) %>% 
     select(seqn, survtime, death, PeriodSeq, Period, time, timesq, event, k, Dk_plus1) #----
 # > Interval = 50
