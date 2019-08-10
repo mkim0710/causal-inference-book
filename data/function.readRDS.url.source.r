@@ -192,15 +192,29 @@ nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>%
 # # ... with 230 more rows
 
 
+
 data.PersonTime.glm_Exposure_k = nhefs.surv.glm_Exposure_k
-nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+g = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
   select(k) %>% distinct %>% arrange(k) %>% 
   {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
   mutate(pNoEvent_k = 1 - predict(data.PersonTime.glm_Exposure_k, newdata = ., type = "response")) %>% 
   group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
   ungroup %>% mutate(Exposure = Exposure %>% as.factor) %>% 
-  ggplot(aes(x = k, y = pNoEvent_k.cumprod, color = Exposure, group = Exposure)) + 
+  ggplot(aes(x = k, y = pNoEvent_k.cumprod, linetype = Exposure, group = Exposure)) + 
   geom_line()
+
+
+g
+g+theme_classic()
+g+theme_bw()
+g+theme_minimal()+theme(legend.position="bottom")
+g+theme_bw()+theme(legend.position="bottom")
+
+filename = paste0("nhefs.surv.glm_Exposure_k", ".ggplot")
+g+theme_bw()+theme(legend.position="bottom")
+ggsave(paste0(filename, ".pdf"), width = 6, height = 8)
+ggsave(paste0(filename, ".png"), width = 6, height = 8)
+
 
 
 
