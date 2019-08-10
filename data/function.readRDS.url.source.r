@@ -141,6 +141,7 @@ nhefs.coxph_Exposure %>% {cbind( coef(.), confint(.) )} %>% exp %>% round(2) #--
 
 
 
+
 #@ -----
 #@ MH) fit of parametric hazards model ========
 data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
@@ -161,10 +162,11 @@ nhefs.surv.glm_Exposure_k %>% summary #----
 
 
 #@ MH) creation of dataset with all time points under each treatment level =====
+data.PersonTime.glm_Exposure_k = nhefs.surv.glm_Exposure_k
 nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
   select(k) %>% distinct %>% arrange(k) %>% 
   {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
-  mutate(pNoEvent_k = 1 - predict(nhefs.surv.glm_Exposure_k, newdata = ., type = "response")) %>% 
+  mutate(pNoEvent_k = 1 - predict(data.PersonTime.glm_Exposure_k, newdata = ., type = "response")) %>% 
   group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
   as.tibble
 # > nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
@@ -189,14 +191,15 @@ nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>%
 # # ... with 230 more rows
 
 
-
+data.PersonTime.glm_Exposure_k = nhefs.surv.glm_Exposure_k
 nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
   select(k) %>% distinct %>% arrange(k) %>% 
   {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
-  mutate(pNoEvent_k = 1 - predict(nhefs.surv.glm_Exposure_k, newdata = ., type = "response")) %>% 
+  mutate(pNoEvent_k = 1 - predict(data.PersonTime.glm_Exposure_k, newdata = ., type = "response")) %>% 
   group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
   ungroup %>% mutate(Exposure = Exposure %>% as.factor) %>% 
   ggplot(aes(x = k, y = pNoEvent_k.cumprod, color = Exposure, group = Exposure)) + 
   geom_line()
+
 
 
