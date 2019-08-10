@@ -98,6 +98,49 @@ nhefs %>%
 
 
 
+
+
+
+#@@@ MH) coxph() =====
+
+#@ nhefs.surv.glm_Exposure ====
+data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+  select(
+    Dk_plus1, Exposure, k
+  )
+nhefs.surv.glm_Exposure = glm(formula = Dk_plus1 ~ Exposure + (k + I(k^2)) + . , data = data, family = binomial)
+nhefs.surv.glm_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+# nhefs.surv.glm_Exposure %>% summary #----
+# > nhefs.surv.glm_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+#                  2.5 % 97.5 %
+# (Intercept) 0.00  0.00   0.00
+# Exposure    1.39  1.10   1.77
+# k           1.02  1.01   1.04
+# I(k^2)      1.00  1.00   1.00
+
+
+#@ nhefs.coxph_Exposure ====
+data = nhefs %>% mutate(Exposure = qsmk, event = death, time = survtime) %>% 
+  select(
+    time, event, Exposure
+  )
+library(survival)
+nhefs.coxph_Exposure = coxph(formula = Surv(time = time, event = event) ~ . , data = data, method = "breslow")
+nhefs.coxph_Exposure %>% {cbind( coef(.), confint(.) )} %>% exp %>% round(2) #----
+# nhefs.coxph_Exposure %>% summary #----
+# > nhefs.coxph_Exposure %>% {cbind( coef(.), confint(.) )} %>% exp %>% round(2) #----
+#               2.5 % 97.5 %
+# Exposure 1.39   1.1   1.76
+
+
+
+
+
+
+                                      
+
+
+
 #@ -----
 #@ MH) fit of parametric hazards model ========
 data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
