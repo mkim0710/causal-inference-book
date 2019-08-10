@@ -90,3 +90,40 @@ nhefs %>%
 #  9   244      120     0         3 (100,150]   150  22500 FALSE     2 FALSE   
 # 10   245       26     1         1 (0,50]       50   2500 TRUE      0 TRUE    
 # # ... with 4,470 more rows
+
+
+
+
+
+
+
+data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time, ksq = k*k, `I(Exposure*k)` = Exposure * k, `I(Exposure*ksq)` = Exposure * ksq) %>% 
+  select(
+    Dk_plus1, Exposure, k, ksq, `I(Exposure*k)`, `I(Exposure*ksq)`
+  )
+nhefs.surv.glm_Exposure = glm(formula = Dk_plus1 ~ . , data = data, family = binomial)
+nhefs.surv.glm_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+nhefs.surv.glm_Exposure %>% summary #----
+# > nhefs.surv.glm_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+#                        2.5 % 97.5 %
+# (Intercept)       0.00  0.00   0.00
+# Exposure          1.40  0.64   3.05
+# k                 1.02  1.00   1.04
+# ksq               1.00  1.00   1.00
+# `I(Exposure*k)`   1.01  0.98   1.04
+# `I(Exposure*ksq)` 1.00  1.00   1.00
+
+nhefs.surv.glm_NoEvent_Exposure = glm(formula = Dk_plus1==0 ~ . , data = data, family = binomial)
+nhefs.surv.glm_NoEvent_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+nhefs.surv.glm_NoEvent_Exposure %>% summary #----
+# > nhefs.surv.glm_NoEvent_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+#                            2.5 %  97.5 %
+# (Intercept)       1091.82 694.35 1716.82
+# Exposure             0.71   0.33    1.56
+# k                    0.98   0.96    1.00
+# ksq                  1.00   1.00    1.00
+# `I(Exposure*k)`      0.99   0.96    1.02
+# `I(Exposure*ksq)`    1.00   1.00    1.00
+
+
+
