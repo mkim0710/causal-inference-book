@@ -97,33 +97,63 @@ nhefs %>%
 
 
 
-data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time, ksq = k*k, `I(Exposure*k)` = Exposure * k, `I(Exposure*ksq)` = Exposure * ksq) %>% 
+
+#@ -----
+#@ MH) fit of parametric hazards model ========
+data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
   select(
-    Dk_plus1, Exposure, k, ksq, `I(Exposure*k)`, `I(Exposure*ksq)`
+    Dk_plus1, Exposure, k
   )
-nhefs.surv.glm_Exposure = glm(formula = Dk_plus1 ~ . , data = data, family = binomial)
-nhefs.surv.glm_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-nhefs.surv.glm_Exposure %>% summary #----
-# > nhefs.surv.glm_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-#                        2.5 % 97.5 %
-# (Intercept)       0.00  0.00   0.00
-# Exposure          1.40  0.64   3.05
-# k                 1.02  1.00   1.04
-# ksq               1.00  1.00   1.00
-# `I(Exposure*k)`   1.01  0.98   1.04
-# `I(Exposure*ksq)` 1.00  1.00   1.00
+nhefs.surv.glm_Exposure_k = glm(formula = Dk_plus1 ~ Exposure * (k + I(k^2)) + . , data = data, family = binomial)
+nhefs.surv.glm_Exposure_k %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+nhefs.surv.glm_Exposure_k %>% summary #----
+# > nhefs.surv.glm_Exposure_k %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+#                      2.5 % 97.5 %
+# (Intercept)     0.00  0.00   0.00
+# Exposure        1.40  0.64   3.05
+# k               1.02  1.00   1.04
+# I(k^2)          1.00  1.00   1.00
+# Exposure:k      1.01  0.98   1.04
+# Exposure:I(k^2) 1.00  1.00   1.00
 
-nhefs.surv.glm_NoEvent_Exposure = glm(formula = Dk_plus1==0 ~ . , data = data, family = binomial)
-nhefs.surv.glm_NoEvent_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-nhefs.surv.glm_NoEvent_Exposure %>% summary #----
-# > nhefs.surv.glm_NoEvent_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-#                            2.5 %  97.5 %
-# (Intercept)       1091.82 694.35 1716.82
-# Exposure             0.71   0.33    1.56
-# k                    0.98   0.96    1.00
-# ksq                  1.00   1.00    1.00
-# `I(Exposure*k)`      0.99   0.96    1.02
-# `I(Exposure*ksq)`    1.00   1.00    1.00
 
+#@ MH) creation of dataset with all time points under each treatment level =====
+nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+  select(k) %>% distinct %>% arrange(k) %>% 
+  {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
+  mutate(pNoEvent_k = 1 - predict(nhefs.surv.glm_Exposure_k, newdata = ., type = "response")) %>% 
+  group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
+  as.tibble
+# > nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+# +   select(k) %>% distinct %>% arrange(k) %>% 
+# +   {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
+# +   mutate(pNoEvent_k = 1 - predict(nhefs.surv.glm_Exposure_k, newdata = ., type = "response")) %>% 
+# +   group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
+# +   as.tibble
+# # A tibble: 240 x 4
+#        k Exposure pNoEvent_k pNoEvent_k.cumprod
+#    <dbl>    <dbl>      <dbl>              <dbl>
+#  1     0        0      0.999              0.999
+#  2     1        0      0.999              0.998
+#  3     2        0      0.999              0.997
+#  4     3        0      0.999              0.996
+#  5     4        0      0.999              0.995
+#  6     5        0      0.999              0.994
+#  7     6        0      0.999              0.993
+#  8     7        0      0.999              0.992
+#  9     8        0      0.999              0.991
+# 10     9        0      0.999              0.990
+# # ... with 230 more rows
+
+
+
+nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+  select(k) %>% distinct %>% arrange(k) %>% 
+  {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
+  mutate(pNoEvent_k = 1 - predict(nhefs.surv.glm_Exposure_k, newdata = ., type = "response")) %>% 
+  group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
+  ungroup %>% mutate(Exposure = Exposure %>% as.factor) %>% 
+  ggplot(aes(x = k, y = pNoEvent_k.cumprod, color = Exposure, group = Exposure)) + 
+  geom_line()
 
 
