@@ -59,8 +59,9 @@ nhefs %>%
         , k = PeriodSeq - 1  # defined as in hernanrobins_v2.17.22 $17.2 From hazards to risks
         , ksq = k*k
         , Dk_plus1 = event  # defined as in hernanrobins_v2.17.22 $17.2 From hazards to risks 
-        , `Dk_plus1:k` = Dk_plus1 * k
-        , `Dk_plus1:ksq` = Dk_plus1 * ksq
+        , Exposure = qsmk
+        , `Exposure:k` = Exposure * k
+        , `I(Exposure*ksq)` = Exposure * ksq
     ) %>% 
     select(seqn, survtime, death, PeriodSeq, Period, time, timesq, event, k, Dk_plus1) #----
 # > Interval = 50
