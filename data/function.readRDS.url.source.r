@@ -212,8 +212,9 @@ g+theme_bw()+theme(legend.position="bottom")
 
 filename = paste0("nhefs.surv.glm_Exposure_k", ".ggplot")
 g+theme_bw()+theme(legend.position="bottom")
-ggsave(paste0(filename, ".pdf"), width = 6, height = 8)
-ggsave(paste0(filename, ".png"), width = 6, height = 8)
+ggsave(paste0(filename, ".pdf"), width = 8, height = 6)
+ggsave(paste0(filename, ".png"), width = 8, height = 6)
+
 
 
 
@@ -299,6 +300,7 @@ g+theme_bw()+theme(legend.position="bottom")
 
 filename = paste0("nhefs.surv.glm_Exposure_k_Covariates", ".ggplot")
 g+theme_bw()+theme(legend.position="bottom")
-ggsave(paste0(filename, ".pdf"), width = 6, height = 8)
-ggsave(paste0(filename, ".png"), width = 6, height = 8)
+ggsave(paste0(filename, ".pdf"), width = 8, height = 6)
+ggsave(paste0(filename, ".png"), width = 8, height = 6)
+
 
