@@ -179,8 +179,22 @@ ggsave(paste0(filename, ".pdf"), width = 8, height = 6)
 ggsave(paste0(filename, ".png"), width = 8, height = 6)
 
 
+#@ (cumulative incidence) -----
 
+data.PersonTime.glmOutcome_Exposure_k = nhefs.surv.glmOutcome_Exposure_k
+g = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+    select(k) %>% distinct %>% arrange(k) %>% 
+    {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
+    mutate(pNoEvent_k = 1 - predict(data.PersonTime.glmOutcome_Exposure_k, newdata = ., type = "response")) %>% 
+    group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
+    ungroup %>% mutate(Exposure = Exposure %>% as.factor) %>% 
+    ggplot(aes(x = k, y = 1 - pNoEvent_k.cumprod, linetype = Exposure, group = Exposure)) + 
+    geom_line()
 
+filename = paste0("nhefs.surv.glmOutcome_Exposure_k", ".ggplot", " (cumulative incidence)")
+g+theme_bw()+theme(legend.position="bottom")
+ggsave(paste0(filename, ".pdf"), width = 8, height = 6)
+ggsave(paste0(filename, ".png"), width = 8, height = 6)
 
 
 
@@ -280,4 +294,26 @@ ggsave(paste0(filename, ".pdf"), width = 8, height = 6)
 ggsave(paste0(filename, ".png"), width = 8, height = 6)
 
 
-#@ 
+
+#@ (cumulative incidence) -----
+data.PersonTime.glmOutcome_Exposure_k_Covariates = nhefs.surv.glmOutcome_Exposure_k_Covariates
+g = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>% 
+    select(
+        Dk_plus1, Exposure, k, age, sex
+    ) %>% mutate(Exposure = Exposure==1) %>% mutate_if(is.logical, as.numeric) %>% 
+    group_by(k) %>% select(-Dk_plus1) %>% summarise_all(median) %>% 
+    {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
+    mutate(pNoEvent_k = 1 - predict(data.PersonTime.glmOutcome_Exposure_k_Covariates, newdata = ., type = "response")) %>% 
+    group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
+    ungroup %>% mutate(Exposure = Exposure %>% as.factor) %>% 
+    ggplot(aes(x = k, y = 1 - pNoEvent_k.cumprod, linetype = Exposure, group = Exposure)) + 
+    geom_line()
+
+filename = paste0("nhefs.surv.glmOutcome_Exposure_k_Covariates", ".ggplot", " (cumulative incidence)")
+g+theme_bw()+theme(legend.position="bottom")
+ggsave(paste0(filename, ".pdf"), width = 8, height = 6)
+ggsave(paste0(filename, ".png"), width = 8, height = 6)
+
+
+
+#@ end ----
