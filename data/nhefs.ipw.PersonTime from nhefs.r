@@ -126,6 +126,39 @@ nhefs %>% transmute(
 
 
 
+
+
+
+
+
+
+#@@@ creation of person-month data -----
+nhefs.ipw <- splitstackshape::expandRows(nhefs, "survtime", drop=F) 
+nhefs.ipw$time <- sequence(rle(nhefs.ipw$seqn)$lengths)-1
+nhefs.ipw$event <- ifelse(nhefs.ipw$time==nhefs.ipw$survtime-1 & 
+                            nhefs.ipw$death==1, 1, 0)
+nhefs.ipw$timesq <- nhefs.ipw$time^2
+
+identical(
+    nhefs.surv %>% select(seqn, death, yrdth, modth, survtime, time)
+    ,
+    nhefs.ipw %>% select(seqn, death, yrdth, modth, survtime, time)
+)
+# > identical(
+# +     nhefs.surv %>% select(seqn, death, yrdth, modth, survtime, time)
+# +     ,
+# +     nhefs.ipw %>% select(seqn, death, yrdth, modth, survtime, time)
+# + )
+# [1] TRUE
+
+#@ end ----
+write_rds(nhefs.ipw, "nhefs.ipw.rds", "gz", compression = 9)
+
+
+
+
+
+#@@@ MH) creation of person-month data -----
 Interval = 1
 nhefs %>%
     mutate(PeriodSeq = survtime %>% map(function(x) 1L:ceiling(x/Interval))) %>% unnest %>%  
