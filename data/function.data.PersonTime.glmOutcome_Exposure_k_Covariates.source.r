@@ -1,5 +1,5 @@
 # function.data.PersonTime.glmOutcome_Exposure_k_Covariates.source.r
-
+# https://github.com/mkim0710/causal-inference-book/blob/master/data/function.data.PersonTime.glmOutcome_Exposure_k_Covariates.source.r
 
 
 #@@@ MH) coxph() =====
