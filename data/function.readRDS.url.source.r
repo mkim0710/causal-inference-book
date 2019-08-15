@@ -1,4 +1,6 @@
-    
+# function.readRDS.url.source.r
+# https://github.com/mkim0710/causal-inference-book/edit/master/data/function.readRDS.url.source.r
+
 nhefs = readRDS(gzcon(url("https://github.com/mkim0710/causal-inference-book/raw/master/data/nhefs.rds")))
 nhefs = readRDS(url("https://github.com/mkim0710/causal-inference-book/raw/master/data/nhefs.rds"))
 
@@ -102,3 +104,4 @@ nhefs %>%
 
 
 
+#@ end ----
