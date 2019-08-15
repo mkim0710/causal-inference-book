@@ -259,6 +259,15 @@ all.equal(
 # [1] TRUE
 
 
+
+
+
+
+#@@ MH) PersonTime data transformation with weights ----
+# Unstabilized Weight: 1/f(A|L) = 1 / { A·P(A=1|L) + (1-A)·(1-P(A=1|L)) }
+# Stabilized Weight: f(A)/f(A|L) = { A·P(A=1) + (1-A)·(1-P(A=1)) } / { A·P(A=1|L) + (1-A)·(1-P(A=1|L)) }
+# Stabilized Weight: f(A)/f(A|L) = A·{P(A=1)/P(A=1|L)} + (1-A)·{(1-P(A=1))/(1-P(A=1|L))}
+
 #@ nhefs.ipw.PersonTime =====
 Interval = 1
 data.glmExposure_Covariate = nhefs.glmExposure_Covariate
@@ -284,8 +293,8 @@ nhefs.ipw.PersonTime =
         , `I(Exposure*ksq)` = Exposure * ksq
     )
 
-nhefs.ipw.PersonTime %>% str
-# > nhefs.ipw.PersonTime %>% str
+nhefs.ipw.PersonTime %>% str #----
+# > nhefs.ipw.PersonTime %>% str #----
 # Classes ‘tbl_df’, ‘tbl’ and 'data.frame':	176764 obs. of  81 variables:
 #  $ seqn               : num  233 233 233 233 233 233 233 233 233 233 ...
 #  $ qsmk               : num  0 0 0 0 0 0 0 0 0 0 ...
