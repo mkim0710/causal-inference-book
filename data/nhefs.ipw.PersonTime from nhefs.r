@@ -49,10 +49,10 @@ nhefs.surv %>% select(seqn, death, matches("event"), matches("time")) %>% filter
 #@@ MH) estimation of denominator of ip weights - this is enough for unstabilized weights: : 1/f(A|L) = 1 / { A·P(A=1|L) + (1-A)·(1-P(A=1|L)) } ----
 nhefs.glmExposure_Covariate = 
     glm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
-               + smokeintensity + I(smokeintensity*smokeintensity)
-               + smokeyrs + I(smokeyrs*smokeyrs) + as.factor(exercise)
-               + as.factor(active) + wt71 + I(wt71*wt71), 
-               data=nhefs, family=binomial())
+        + smokeintensity + I(smokeintensity*smokeintensity)
+        + smokeyrs + I(smokeyrs*smokeyrs) + as.factor(exercise)
+        + as.factor(active) + wt71 + I(wt71*wt71), 
+        data=nhefs, family=binomial())
 nhefs.glmExposure_Covariate %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
 # > nhefs.glmExposure_Covariate %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
 # # A tibble: 19 x 5
@@ -136,7 +136,7 @@ nhefs %>% transmute(
 nhefs.ipw <- splitstackshape::expandRows(nhefs, "survtime", drop=F) 
 nhefs.ipw$time <- sequence(rle(nhefs.ipw$seqn)$lengths)-1
 nhefs.ipw$event <- ifelse(nhefs.ipw$time==nhefs.ipw$survtime-1 & 
-                            nhefs.ipw$death==1, 1, 0)
+                              nhefs.ipw$death==1, 1, 0)
 nhefs.ipw$timesq <- nhefs.ipw$time^2
 
 identical(
@@ -175,7 +175,7 @@ nhefs %>%
         , `I(Exposure*ksq)` = Exposure * ksq
     ) %>% 
     # select(seqn, survtime, death, PeriodSeq, Period, time, timesq, event, k, Dk_plus1) #----
-    select(seqn, survtime, death, PeriodSeq, Period, event, k, Dk_plus1) #----
+select(seqn, survtime, death, PeriodSeq, Period, event, k, Dk_plus1) #----
 # > nhefs %>%
 # +     mutate(PeriodSeq = survtime %>% map(function(x) 1L:ceiling(x/Interval))) %>% unnest %>%  
 # +     mutate(
@@ -244,15 +244,15 @@ all.equal(
             , `I(Exposure*ksq)` = Exposure * ksq
         ) %>% 
         # select(seqn, survtime, death, PeriodSeq, Period, time, timesq, event, k, Dk_plus1) #----
-        # select(seqn, survtime, death, PeriodSeq, Period, event, k, Dk_plus1) #----
-        transmute(
-            seqn = seqn
-            , death = death
-            , event = event %>% as.numeric
-            , survtime = survtime
-            , time = k
-            , timesq = k*k
-        )
+    # select(seqn, survtime, death, PeriodSeq, Period, event, k, Dk_plus1) #----
+    transmute(
+        seqn = seqn
+        , death = death
+        , event = event %>% as.numeric
+        , survtime = survtime
+        , time = k
+        , timesq = k*k
+    )
 )
 # [1] TRUE
 
