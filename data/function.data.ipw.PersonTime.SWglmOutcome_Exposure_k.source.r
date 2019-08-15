@@ -77,7 +77,7 @@ data %>% select(k) %>% distinct %>% arrange(k) %>% {rbind(mutate(., Exposure = 0
     mutate(pNoEvent_k = 1 - predict(data.PersonTime.glmOutcome_Exposure_k, newdata = ., type = "response")) %>% 
     group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
     rownames_to_column %>% group_by(Exposure) %>% do(tail(.,6)) %>% #----
-    as.tibble
+as.tibble
 # > nhefs.ipw.PersonTime %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = k) %>% 
 # +     select(k) %>% distinct %>% arrange(k) %>% 
 # +     {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
@@ -120,6 +120,23 @@ g+theme_minimal()+theme(legend.position="bottom")
 g+theme_bw()+theme(legend.position="bottom")
 
 filename = paste0("nhefs.ipw.PersonTime.SWglmOutcome_Exposure_k", ".ggplot")
+g+theme_bw()+theme(legend.position="bottom")
+ggsave(paste0(filename, ".pdf"), width = 8, height = 6)
+ggsave(paste0(filename, ".png"), width = 8, height = 6)
+
+
+
+#@ (cumulative incidence) -----
+data.PersonTime.glmOutcome_Exposure_k = nhefs.ipw.PersonTime.SWglmOutcome_Exposure_k
+data = nhefs.ipw.PersonTime %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = k) 
+g = data %>% select(k) %>% distinct %>% arrange(k) %>% {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
+    mutate(pNoEvent_k = 1 - predict(data.PersonTime.glmOutcome_Exposure_k, newdata = ., type = "response")) %>% 
+    group_by(Exposure) %>% mutate(pNoEvent_k.cumprod = pNoEvent_k %>% cumprod) %>% 
+    ungroup %>% mutate(Exposure = Exposure %>% as.factor) %>% 
+    ggplot(aes(x = k, y = 1 - pNoEvent_k.cumprod, linetype = Exposure, group = Exposure)) + 
+    geom_line()
+
+filename = paste0("nhefs.ipw.PersonTime.SWglmOutcome_Exposure_k", ".ggplot", " (cumulative incidence)")
 g+theme_bw()+theme(legend.position="bottom")
 ggsave(paste0(filename, ".pdf"), width = 8, height = 6)
 ggsave(paste0(filename, ".png"), width = 8, height = 6)
