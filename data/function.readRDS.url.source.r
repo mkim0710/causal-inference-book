@@ -109,15 +109,23 @@ data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>%
     select(
         Dk_plus1, Exposure, k
     )
-nhefs.surv.glmOutcome_Exposure = glm(formula = Dk_plus1 ~ Exposure + (k + I(k^2)) + . , data = data, family = binomial)
-nhefs.surv.glmOutcome_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-# nhefs.surv.glmOutcome_Exposure %>% summary #----
-# > nhefs.surv.glmOutcome_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-#                  2.5 % 97.5 %
-# (Intercept) 0.00  0.00   0.00
-# Exposure    1.39  1.10   1.77
-# k           1.02  1.01   1.04
-# I(k^2)      1.00  1.00   1.00
+# nhefs.surv.glmOutcome_Exposure = glm(formula = Dk_plus1 ~ Exposure + (k + I(k^2)) + . , data = data, family = binomial)
+# # nhefs.surv.glmOutcome_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+# # # > nhefs.surv.glmOutcome_Exposure %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+# # #                  2.5 % 97.5 %
+# # # (Intercept) 0.00  0.00   0.00
+# # # Exposure    1.39  1.10   1.77
+# # # k           1.02  1.01   1.04
+# # # I(k^2)      1.00  1.00   1.00
+nhefs.surv.glmOutcome_Exposure %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
+# > nhefs.surv.glmOutcome_Exposure %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
+# # A tibble: 4 x 5
+#   rowname     `exp(coef(.))` `2.5 %` `97.5 %` `Pr(>|z|)`
+#   <chr>                <dbl>   <dbl>    <dbl>      <dbl>
+# 1 (Intercept)           0       0        0          0   
+# 2 Exposure              1.39    1.1      1.77       0.01
+# 3 k                     1.02    1.01     1.04       0   
+# 4 I(k^2)                1       1        1          0   
 
 
 #@ nhefs.coxph_Exposure ====
@@ -126,12 +134,19 @@ data = nhefs %>% mutate(Exposure = qsmk, event = death, time = survtime) %>%
         time, event, Exposure
     )
 library(survival)
-nhefs.coxph_Exposure = coxph(formula = Surv(time = time, event = event) ~ . , data = data, method = "breslow")
-nhefs.coxph_Exposure %>% {cbind( coef(.), confint(.) )} %>% exp %>% round(2) #----
-# nhefs.coxph_Exposure %>% summary #----
-# > nhefs.coxph_Exposure %>% {cbind( coef(.), confint(.) )} %>% exp %>% round(2) #----
-#               2.5 % 97.5 %
-# Exposure 1.39   1.1   1.76
+nhefs.coxphTimeEvent_Exposure = coxph(formula = Surv(time = time, event = event) ~ . , data = data, method = "breslow")
+# nhefs.coxphTimeEvent_Exposure %>% {cbind( coef(.), confint(.) )} %>% exp %>% round(2) #----
+# # > nhefs.coxphTimeEvent_Exposure %>% {cbind( coef(.), confint(.) )} %>% exp %>% round(2) #----
+# #               2.5 % 97.5 %
+# # Exposure 1.39   1.1   1.76
+nhefs.coxphTimeEvent_Exposure %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
+# > nhefs.coxphTimeEvent_Exposure %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
+# # A tibble: 1 x 5
+#   rowname  `exp(coef(.))` `2.5 %` `97.5 %` `Pr(>|z|)`
+#   <chr>             <dbl>   <dbl>    <dbl>      <dbl>
+# 1 Exposure           1.39     1.1     1.76       0.01
+
+
 
 
 
@@ -151,16 +166,28 @@ data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>%
         Dk_plus1, Exposure, k
     )
 nhefs.surv.glmOutcome_Exposure_k = glm(formula = Dk_plus1 ~ Exposure * (k + I(k^2)) + . , data = data, family = binomial)
-nhefs.surv.glmOutcome_Exposure_k %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-nhefs.surv.glmOutcome_Exposure_k %>% summary #----
-# > nhefs.surv.glmOutcome_Exposure_k %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-#                      2.5 % 97.5 %
-# (Intercept)     0.00  0.00   0.00
-# Exposure        1.40  0.64   3.05
-# k               1.02  1.00   1.04
-# I(k^2)          1.00  1.00   1.00
-# Exposure:k      1.01  0.98   1.04
-# Exposure:I(k^2) 1.00  1.00   1.00
+# nhefs.surv.glmOutcome_Exposure_k %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+nhefs.surv.glmOutcome_Exposure_k %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
+# nhefs.surv.glmOutcome_Exposure_k %>% summary #----
+# # > nhefs.surv.glmOutcome_Exposure_k %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+# #                      2.5 % 97.5 %
+# # (Intercept)     0.00  0.00   0.00
+# # Exposure        1.40  0.64   3.05
+# # k               1.02  1.00   1.04
+# # I(k^2)          1.00  1.00   1.00
+# # Exposure:k      1.01  0.98   1.04
+# # Exposure:I(k^2) 1.00  1.00   1.00
+# > nhefs.surv.glmOutcome_Exposure_k %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
+# # A tibble: 6 x 5
+#   rowname         `exp(coef(.))` `2.5 %` `97.5 %` `Pr(>|z|)`
+#   <chr>                    <dbl>   <dbl>    <dbl>      <dbl>
+# 1 (Intercept)               0       0        0          0   
+# 2 Exposure                  1.4     0.64     3.05       0.4 
+# 3 k                         1.02    1        1.04       0.02
+# 4 I(k^2)                    1       1        1          0.06
+# 5 Exposure:k                1.01    0.98     1.04       0.42
+# 6 Exposure:I(k^2)           1       1        1          0.2 
+
 
 
 #@ MH) creation of dataset with all time points under each treatment level =====
@@ -229,18 +256,31 @@ data = nhefs.surv %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = time) %>%
         Dk_plus1, Exposure, k, age, sex
     ) %>% mutate(Exposure = Exposure==1) %>% mutate_if(is.logical, as.numeric)
 nhefs.surv.glmOutcome_Exposure_k_Covariates = glm(formula = Dk_plus1 ~ Exposure * (k + I(k^2)) + . , data = data, family = binomial)
-nhefs.surv.glmOutcome_Exposure_k_Covariates %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-nhefs.surv.glmOutcome_Exposure_k_Covariates %>% summary #----
-# > nhefs.surv.glmOutcome_Exposure_k_Covariates %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
-#                      2.5 % 97.5 %
-# (Intercept)     0.00  0.00   0.00
-# Exposure        0.91  0.41   1.98
-# k               1.02  1.01   1.04
-# I(k^2)          1.00  1.00   1.00
-# age             1.10  1.09   1.12
-# sex             0.59  0.47   0.74
-# Exposure:k      1.02  0.99   1.05
-# Exposure:I(k^2) 1.00  1.00   1.00
+# nhefs.surv.glmOutcome_Exposure_k_Covariates %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+nhefs.surv.glmOutcome_Exposure_k_Covariates %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
+# nhefs.surv.glmOutcome_Exposure_k_Covariates %>% summary #----
+# # > nhefs.surv.glmOutcome_Exposure_k_Covariates %>% {cbind( coef(.), confint.default(.) )} %>% exp %>% round(2) #----
+# #                      2.5 % 97.5 %
+# # (Intercept)     0.00  0.00   0.00
+# # Exposure        0.91  0.41   1.98
+# # k               1.02  1.01   1.04
+# # I(k^2)          1.00  1.00   1.00
+# # age             1.10  1.09   1.12
+# # sex             0.59  0.47   0.74
+# # Exposure:k      1.02  0.99   1.05
+# # Exposure:I(k^2) 1.00  1.00   1.00
+# > nhefs.surv.glmOutcome_Exposure_k_Covariates %>% {cbind( `exp(coef(.))` = exp(coef(.)), exp(confint.default(.)), `Pr(>|z|)` = summary(.)$coefficients[,"Pr(>|z|)"] )} %>% round(2) %>% as.data.frame %>% rownames_to_column %>% as.tibble #----
+# # A tibble: 8 x 5
+#   rowname         `exp(coef(.))` `2.5 %` `97.5 %` `Pr(>|z|)`
+#   <chr>                    <dbl>   <dbl>    <dbl>      <dbl>
+# 1 (Intercept)               0       0        0          0   
+# 2 Exposure                  0.91    0.41     1.98       0.81
+# 3 k                         1.02    1.01     1.04       0.01
+# 4 I(k^2)                    1       1        1          0.08
+# 5 age                       1.1     1.09     1.12       0   
+# 6 sex                       0.59    0.47     0.74       0   
+# 7 Exposure:k                1.02    0.99     1.05       0.32
+# 8 Exposure:I(k^2)           1       1        1          0.16
 
 
 #@ MH) creation of dataset with all time points under each treatment level =====
