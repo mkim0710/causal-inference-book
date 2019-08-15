@@ -103,6 +103,7 @@ as.tibble
 
 
 
+#@ ggplot -----
 data.PersonTime.glmOutcome_Exposure_k = nhefs.ipw.PersonTime.SWglmOutcome_Exposure_k
 data = nhefs.ipw.PersonTime %>% mutate(Exposure = qsmk, Dk_plus1 = event, k = k) 
 g = data %>% select(k) %>% distinct %>% arrange(k) %>% {rbind(mutate(., Exposure = 0), mutate(., Exposure = 1))} %>% 
