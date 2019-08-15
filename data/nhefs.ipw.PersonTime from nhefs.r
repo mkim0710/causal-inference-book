@@ -1,4 +1,6 @@
 # nhefs.ipw.PersonTime from nhefs.r
+# https://github.com/mkim0710/causal-inference-book/blob/master/data/nhefs.ipw.PersonTime from nhefs.r
+
 
 # nhefs = readRDS(gzcon(url("https://github.com/mkim0710/causal-inference-book/raw/master/data/nhefs.rds")))
 nhefs = readRDS(url("https://github.com/mkim0710/causal-inference-book/raw/master/data/nhefs.rds"))
