@@ -260,7 +260,7 @@ all.equal(
 
 
 #@ nhefs.ipw.PersonTime =====
-
+Interval = 1
 data.glmExposure_Covariate = nhefs.glmExposure_Covariate
 nhefs.ipw.PersonTime =
     nhefs %>% mutate(
